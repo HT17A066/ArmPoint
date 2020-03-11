@@ -17,6 +17,7 @@
 // Service implementation headers
 // <rtc-template block="service_impl_h">
 #include "BasicDataTypeSVC_impl.h"
+#include "ExtendedDataTypesSVC_impl.h"
 
 // </rtc-template>
 
@@ -248,10 +249,10 @@ class ArmPointTest
   /*!
    */
   OutPort<RTC::TimedDoubleSeq> m_armStatusOut;
-  RTC::TimedString m_point;
+  RTC::TimedPoint3D m_point;
   /*!
    */
-  OutPort<RTC::TimedString> m_pointOut;
+  OutPort<RTC::TimedPoint3D> m_pointOut;
   
   // </rtc-template>
 

@@ -87,7 +87,7 @@ Lang Type:
 	PortNumber:  1
 	Description: 
 	PortType: 
-	DataType:    RTC::TimedPoint3D
+	DataType:    RTC::TimedString
 	MaxOut: 
 	[Data Elements]
 		Name:

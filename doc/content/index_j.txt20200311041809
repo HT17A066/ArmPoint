@@ -109,7 +109,7 @@ ArmPointは ``ArmPointComp`` を実行（ ``${prefix}/components/bin`` に
 ポート名        ポート型    データ型                       意味
 =============== =========== ============================== ====
 armStatus       InPort      RTC::TimedDoubleSeq            
-point           InPort      RTC::TimedPoint3D              
+point           InPort      RTC::TimedString               
 arm             OutPort     RTC::TimedDoubleSeq            
 =============== =========== ============================== ====
 

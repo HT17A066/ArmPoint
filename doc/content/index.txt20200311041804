@@ -117,7 +117,7 @@ The ports provided by the component are described below:
 Name            Type        Data type                      Purpose
 =============== =========== ============================== =======
 armStatus       InPort      RTC::TimedDoubleSeq            
-point           InPort      RTC::TimedPoint3D              
+point           InPort      RTC::TimedString               
 arm             OutPort     RTC::TimedDoubleSeq            
 =============== =========== ============================== =======
 

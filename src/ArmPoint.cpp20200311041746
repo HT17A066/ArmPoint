@@ -14,11 +14,24 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+
 #include "ArmPoint.h"
 
 using namespace std;
 
 const int NUM_ACTUATOR = 5;
+const int cylinder_size = 7;
+const int ave_set = 10;
+
+
+const double AddLange_x = 0.15;
+const double AddLange_y = -0.13;
+const double AddLange_z = 0.08;
+const double AddLange_z1 = 0.15;
+
+const double Xaxis_distance = 1.0; // キャリブレーション時の平面とアームとのx軸の距離
+const double Yaxis_distance = 0.0; // キャリブレーション時の平面とアームとのy軸の距離
+
 const double samplex = 1;
 const double sampley = 0;
 const double samplez = 0;
@@ -114,6 +127,7 @@ RTC::ReturnCode_t ArmPoint::onShutdown(RTC::UniqueId ec_id)
 
 RTC::ReturnCode_t ArmPoint::onActivated(RTC::UniqueId ec_id)
 {
+  cout << "ArmPoint::onActivate()" << endl;
   m_arm.data.length(NUM_ACTUATOR + 1);
   return RTC::RTC_OK;
 }
@@ -129,41 +143,43 @@ RTC::ReturnCode_t ArmPoint::onExecute(RTC::UniqueId ec_id)
 {
   if (m_pointIn.isNew()) {
     m_pointIn.read();
-    double &pointx = m_point.data.x;
-    double &pointy = m_point.data.y;
-    double &pointz = m_point.data.z;
-      //角度計算
+    string cs(m_point.data);
+    istringstream is(cs);
+    string head;
+    is >> head;
+    if (head == "point") {
+      double pointx, pointy, pointz;
+      is >> pointx >> pointy >> pointz;
+      if (!is) {
+        RTC_ERROR(("Arguments invalid: %s", cs.c_str()));
+        return RTC::RTC_OK;
+      }
+  //角度計算
       //1軸目計算
-    double cosx, radx, cosz, radz;
-    cosx = ((samplex*pointx) + (sampley*pointy)) / (sqrt((samplex*samplex) + (pointx*pointx))*sqrt((sampley*sampley) + (pointy*pointy)));
-    //★要調整★(合っているのかわからん）
-    if (pointy > 0) {
-      radx = -cos(cosx);
-    } else {
-      radx = cos(cosx);
+      double cosx, radx, cosz, radz;
+      cosx = ((samplex*pointx) + (sampley*pointy)) / (sqrt((samplex*samplex) + (pointx*pointx))*sqrt((sampley*sampley) + (pointy*pointy)));
+      //★要調整★
+      if (pointy > 0) {
+        radx = -cos(cosx);
+      } else {
+        radx = cos(cosx);
+      }
+      //3軸目計算
+      cosz= ((samplez*pointz) + (samplex*pointx)) / (sqrt((samplez*samplez) + (pointz*pointz))*sqrt((samplex*samplex) + (pointx*pointx)));
+      radz = cos(cosz);
+      
+  //関節指令
+      m_arm.data[0] = radx;
+      m_arm.data[1] = 2.7;//???
+      m_arm.data[2] = radz;
+      m_arm.data[3] = 0;
+      m_arm.data[4] = 0.1;
+      m_arm.data[5] = 4;
+      m_armOut.write();
     }
-    //3軸目計算
-    cosz = ((samplez*pointz) + (samplex*pointx)) / (sqrt((samplez*samplez) + (pointz*pointz))*sqrt((samplex*samplex) + (pointx*pointx)));
-    radz = cos(cosz);
-
-    //確認
-    cout << "(pointx, pointy, pointz)" << endl;
-    cout << "(" << pointx << "," << pointy << "," << pointz << ")" << endl;
-    cout << "cosx:" << cosx << endl;
-    cout << "cosz:" << cosz << endl;
-    cout << "RadianX:" << radx << endl;
-    cout << "RadianZ:" << radz << endl;
-
-    //関節指令
-    m_arm.data[0] = radx;
-    m_arm.data[1] = 2.7;//???
-    m_arm.data[2] = radz;
-    m_arm.data[3] = 0;
-    m_arm.data[4] = 0.1;
-    m_arm.data[5] = 4;
-    m_armOut.write();
-    return RTC::RTC_OK;
   }
+
+  return RTC::RTC_OK;
 }
 
 /*

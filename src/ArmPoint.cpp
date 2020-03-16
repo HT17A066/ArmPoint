@@ -19,9 +19,7 @@
 using namespace std;
 
 const int NUM_ACTUATOR = 5;
-const double samplex = 1;
-const double sampley = 0;
-const double samplez = 0;
+
 // Module specification
 // <rtc-template block="module_spec">
 static const char* armpoint_spec[] =
@@ -133,30 +131,21 @@ RTC::ReturnCode_t ArmPoint::onExecute(RTC::UniqueId ec_id)
     double &pointy = m_point.data.y;
     double &pointz = m_point.data.z;
       //角度計算
+    double radx, radz;
       //1軸目計算
-    double cosx, radx, cosz, radz;
-    cosx = ((samplex*pointx) + (sampley*pointy)) / (sqrt((samplex*samplex) + (pointx*pointx))*sqrt((sampley*sampley) + (pointy*pointy)));
-    //★要調整★(合っているのかわからん）
-    if (pointy > 0) {
-      radx = -cos(cosx);
-    } else {
-      radx = cos(cosx);
-    }
+    radx = atan2(pointy, pointx);
     //3軸目計算
-    cosz = ((samplez*pointz) + (samplex*pointx)) / (sqrt((samplez*samplez) + (pointz*pointz))*sqrt((samplex*samplex) + (pointx*pointx)));
-    radz = cos(cosz);
+    radz = atan2(pointz, pointx);
 
     //確認
     cout << "(pointx, pointy, pointz)" << endl;
     cout << "(" << pointx << "," << pointy << "," << pointz << ")" << endl;
-    cout << "cosx:" << cosx << endl;
-    cout << "cosz:" << cosz << endl;
     cout << "RadianX:" << radx << endl;
     cout << "RadianZ:" << radz << endl;
 
     //関節指令
     m_arm.data[0] = radx;
-    m_arm.data[1] = 2.7;//???
+    m_arm.data[1] = 1.57;//???
     m_arm.data[2] = radz;
     m_arm.data[3] = 0;
     m_arm.data[4] = 0.1;
